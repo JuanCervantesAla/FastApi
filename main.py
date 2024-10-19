@@ -1,29 +1,39 @@
-import os
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
+from typing import List
 
 app = FastAPI()
 
-class Curso(BaseModel):
-    titulo: str
-    descripcion: str
-    dificultad: str
-    tiempoMeses: int
+
+class Ciudadano(BaseModel):
+    Nombre: str
+    Apellido: str
+    Curp: str
+    Estado: int
+
+
+ciudadanos = [
+    Ciudadano(Nombre="Juan", Apellido="Pérez", Curp="CURP123456", Estado=1),
+    Ciudadano(Nombre="María", Apellido="García", Curp="CURP654321", Estado=2),
+    Ciudadano(Nombre="Pedro", Apellido="López", Curp="CURP789456", Estado=3)
+]
 
 @app.get("/")
 def index():
-    return {"message": "Bienvenido al curso de FastAPI"}
+    return {"message": "Bienvenido a la API de Ciudadanos"}
 
-@app.get("/cursos")
-def mostrar_curso(tituloCurso: str):
-    return {"message": f"curso: {tituloCurso}"}
 
-@app.post("/cursos")
-def insertar_curso(curso: Curso):
-    return {"message": f"curso {curso.titulo} insertado"}
+@app.get("/ciudadanos", response_model=List[Ciudadano])
+def mostrar_ciudadanos():
+    return ciudadanos
+
+@app.post("/ciudadanos")
+def insertar_ciudadano(ciudadano: Ciudadano):
+    ciudadanos.append(ciudadano)  
+    return {"message": f"Ciudadano {ciudadano.Nombre} insertado con éxito"}
+
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto
+    port = int(os.getenv("PORT", 8000)) 
     uvicorn.run(app, host="0.0.0.0", port=port)
